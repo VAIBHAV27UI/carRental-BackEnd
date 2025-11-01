@@ -22,10 +22,9 @@ app.use(
   cors({
     origin: [
       "http://localhost:3000",
-      "https://car-rental-front-end-sooty.vercel.app/",
+      "https://car-rental-front-end-sooty.vercel.app",
     ],
     methods: ["GET", "POST", "PUT", "DELETE"],
-
     credentials: true,
   })
 );
