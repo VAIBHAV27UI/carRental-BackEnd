@@ -29,6 +29,9 @@ app.use(
   })
 );
 
+app.use(cors({ origin: "*" }));
+
+
 app.use(express.json());
 
 const port = process.env.PORT || 5000;
