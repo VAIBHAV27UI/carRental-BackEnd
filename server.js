@@ -21,8 +21,10 @@ const app = express();
 connectDB();
 
 // middleware
-app.use(cors());
-
+app.use(cors({
+  origin: ["http://localhost:3000", "https://car-rental-front-end-sooty.vercel.app/"],
+  credentials: true,
+}));
 
 app.use(express.json());
 
