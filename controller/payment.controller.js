@@ -108,7 +108,6 @@ export const verifyPayment = async (req, res) => {
       bookingId,
     } = req.body;
 
-    // Verify signature
     const generatedSignature = crypto
       .createHmac("sha256", process.env.RAZORPAY_SECRET)
       .update(`${razorpay_order_id}|${razorpay_payment_id}`)
@@ -120,18 +119,16 @@ export const verifyPayment = async (req, res) => {
         .json({ success: false, message: "Invalid signature" });
     }
 
-    // Update booking status to confirmed
     const booking = await Booking.findByIdAndUpdate(
       bookingId,
       { status: "pending" },
       { new: true }
     );
 
-    // Create payment record
     const payment = await Payment.create({
       booking: booking._id,
       amount: booking.totalPrice,
-      method: "upi", // or pass from frontend
+      method: "upi", 
       status: "completed",
       transactionId: razorpay_payment_id,
     });
