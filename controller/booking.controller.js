@@ -1,7 +1,6 @@
 import mongoose from "mongoose";
 import Booking from "../model/booking.model";
 
-
 export const getAllBookings = async (req, res) => {
   try {
     const bookings = await Booking.find()
@@ -29,11 +28,10 @@ export const getUserBookings = async (req, res) => {
     const bookings = await Booking.find({ user: id })
       .populate({
         path: "vehicle",
-        select: "brand model image pricePerDay", // adjust fields as needed
       })
       .populate({
         path: "user",
-        select: "fullName email", // select only needed fields
+        select: "fullName email name",
       })
       .sort({ createdAt: -1 });
 
