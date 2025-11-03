@@ -1,9 +1,6 @@
 import mongoose from "mongoose";
 import Booking from "../model/booking.model";
 
-// http://localhost:8000/api/booking/68cacaf522d2a9faf6cea2b5 - API
-// http://localhost:8000/api/vehicles/68d235b4295515ab55ea826a
-// http://localhost:8000/api/booking/68e8fea628d28849bbf4cf5d
 
 export const getAllBookings = async (req, res) => {
   try {
@@ -29,11 +26,15 @@ export const getUserBookings = async (req, res) => {
         .json({ success: false, message: "Invalid user ID" });
     }
 
-    const bookings = await Booking.find({
-      user: new mongoose.Types.ObjectId(id),
-    })
-
-      .populate("vehicle")
+    const bookings = await Booking.find({ user: id })
+      .populate({
+        path: "vehicle",
+        select: "brand model image pricePerDay", // adjust fields as needed
+      })
+      .populate({
+        path: "user",
+        select: "fullName email", // select only needed fields
+      })
       .sort({ createdAt: -1 });
 
     res.json({ success: true, data: bookings });
@@ -51,7 +52,9 @@ export const updateBookingStatus = async (req, res) => {
     const { status } = req.body;
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({ success: false, message: "Invalid Booking ID" });
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid Booking ID" });
     }
 
     const booking = await Booking.findByIdAndUpdate(
@@ -61,7 +64,9 @@ export const updateBookingStatus = async (req, res) => {
     );
 
     if (!booking) {
-      return res.status(404).json({ success: false, message: "Booking not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Booking not found" });
     }
 
     return res.json({ success: true, data: booking });

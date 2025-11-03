@@ -23,10 +23,13 @@ const checkAvailability = async (vehicleId, pickupDate, returnDate) => {
 
 export const createOrder = async (req, res) => {
   try {
+    console.log("Received body:", req.body);
+
     const { amount, bookingData } = req.body;
 
     const {
       vehicle,
+      fullName,
       user,
       pickupDate,
       returnDate,
@@ -37,6 +40,7 @@ export const createOrder = async (req, res) => {
 
     if (
       !vehicle ||
+      !fullName ||
       !user ||
       !pickupDate ||
       !returnDate ||
@@ -49,14 +53,19 @@ export const createOrder = async (req, res) => {
         .json({ success: false, message: "All fields are required" });
     }
 
-    const isAvailable = await checkAvailability(vehicle, pickupDate, returnDate);
+    const isAvailable = await checkAvailability(
+      vehicle,
+      pickupDate,
+      returnDate
+    );
     if (!isAvailable) {
       return res
         .status(400)
-        .json({ success: false, message: "Car not available for selected dates" });
+        .json({
+          success: false,
+          message: "Car not available for selected dates",
+        });
     }
-
-    console.log("Creating Razorpay order with amount:", amount);
 
     const order = await razorpayInstance.orders.create({
       amount,
@@ -71,15 +80,27 @@ export const createOrder = async (req, res) => {
         .json({ success: false, message: "Razorpay order creation failed" });
     }
 
-    const booking = await Booking.create({
+    console.log("Booking data to save:", {
       vehicle,
       user,
+      fullName,
       pickupDate,
       returnDate,
       pickupLocation,
       dropoffLocation,
       totalPrice,
-      paymentStatus: "pending",
+    });
+
+    const booking = await Booking.create({
+      vehicle,
+      user,
+      fullName,
+      pickupDate,
+      returnDate,
+      pickupLocation,
+      dropoffLocation,
+      totalPrice,
+      status: "pending",
     });
 
     console.log("Booking created:", booking._id);
@@ -97,8 +118,6 @@ export const createOrder = async (req, res) => {
   }
 };
 
-
-// Verify payment
 export const verifyPayment = async (req, res) => {
   try {
     const {
@@ -128,7 +147,7 @@ export const verifyPayment = async (req, res) => {
     const payment = await Payment.create({
       booking: booking._id,
       amount: booking.totalPrice,
-      method: "upi", 
+      method: "upi",
       status: "completed",
       transactionId: razorpay_payment_id,
     });
