@@ -26,13 +26,7 @@ export const getUserBookings = async (req, res) => {
     }
 
     const bookings = await Booking.find({ user: id })
-      .populate({
-        path: "vehicle",
-      })
-      .populate({
-        path: "user",
-        select: "fullName email name",
-      })
+      .populate("vehicle")
       .sort({ createdAt: -1 });
 
     res.json({ success: true, data: bookings });
