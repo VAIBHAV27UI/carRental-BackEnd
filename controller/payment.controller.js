@@ -23,9 +23,6 @@ const checkAvailability = async (vehicleId, pickupDate, returnDate) => {
 
 export const createOrder = async (req, res) => {
   try {
-
-    console.log("Received body:", req.body);
-
     const { amount, bookingData } = req.body;
 
     const {
@@ -61,8 +58,6 @@ export const createOrder = async (req, res) => {
         .json({ success: false, message: "Car not available for selected dates" });
     }
 
-    console.log("Creating Razorpay order with amount:", amount);
-
     const order = await razorpayInstance.orders.create({
       amount,
       currency: "INR",
@@ -76,9 +71,6 @@ export const createOrder = async (req, res) => {
         .json({ success: false, message: "Razorpay order creation failed" });
     }
 
-console.log("Full name from frontend:", fullName);
-
-
     const booking = await Booking.create({
       vehicle,
       user,
@@ -90,9 +82,6 @@ console.log("Full name from frontend:", fullName);
       totalPrice,
       paymentStatus: "pending",
     });
-
-    console.log("Booking created:", booking._id);
-    console.log("Razorpay order:", order.id);
 
     return res.status(200).json({
       success: true,
